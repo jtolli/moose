@@ -199,6 +199,14 @@ protected:
    */
   virtual VariableValue & coupledNodalValueOlder(const std::string & var_name, unsigned int comp = 0);
 
+  /**
+   * Nodal values of time derivative of a coupled variable
+   * @param var_name Name of coupled variable
+   * @param comp Component number for vector of coupled variables
+   * @return Reference to a VariableValue containing the nodal values of time derivative of the coupled variable
+   */
+  virtual VariableValue & coupledNodalDot(const std::string & var_name, unsigned int comp = 0);
+
 protected:
   // Reference to FEProblem
   FEProblem & _c_fe_problem;
@@ -245,6 +253,8 @@ protected:
    */
   void validateExecutionerType(const std::string & name) const;
 
+  /// Whether or not this object is a "neighbor" object: ie all of it's coupled values should be neighbor values
+  bool _coupleable_neighbor;
 private:
 
   /**

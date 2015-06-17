@@ -39,8 +39,15 @@ protected:
     JACOBIAN,
     INITIAL_CONDITION
   } _when;
-  /// Counter for the number of calls
-  unsigned int _call_no;
+
+  /// True once the residual has thrown
+  bool _res_has_thrown;
+
+  /// True once the Jacobian has thrown
+  bool _jac_has_thrown;
+
+  /// Function which returns true if it's time to throw
+  bool time_to_throw();
 };
 
 #endif /* EXCEPTIONKERNEL_H */
