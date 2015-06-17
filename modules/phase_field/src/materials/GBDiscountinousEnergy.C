@@ -20,7 +20,7 @@ InputParameters validParams<GBDiscountinousEnergy>()
   params.addParam<Real>("Q", 0, "Grain boundary migration activation energy in eV");
   params.addRequiredParam<Real>("GBenergyIn", "Grain boundary energy in the grain in J/m^2");
   params.addRequiredParam<Real>("GBenergyOut", "Grain Boundary energy out of the grain");
-  params.addParam<Real>("cut_off",0.5,"the order parameter value where the discountity occurs");
+  params.addParam<Real>("cut_off",0.99,"the order parameter value where the discountity occurs");
   params.addRequiredCoupledVar("v","the grain boundaries");
   params.addParam<Real>("molar_volume", 24.62e-6, "Molar volume in m^3/mol, needed for temperature gradient driving force");
 
@@ -70,7 +70,7 @@ GBDiscountinousEnergy::computeQpProperties()
   Real M0 = _GBmob0;
   Real JtoeV = 6.24150974e18;// joule to eV conversion
 
-  if ((_v)[_qp] > _cut_off)
+  if ((_v)[_qp] < _cut_off)
   {
     _GBenergy = _GBenergyIn;
   }

@@ -21,7 +21,6 @@
   # Parameters used by several kernels that are defined globally to simplify input file
   op_num = 2 # Number of grains
   var_name_base = gr # Base name of grains
-  outputs = exodus
 []
 
 [Variables]
@@ -91,30 +90,27 @@
     wGB = 40 # nm
     GBmob0 = 2.5e-6 #m^4/(Js) from Schoenfelder 1997
     Q = 0.23 #Migration energy in eV
-    GBenergyIn = 0.9 #GB energy in J/m^2
-    GBenergyOut = 0.5
-    cut_off = 0.9
+    GBenergyIn = 0.708 #GB energy in J/m^2
+    GBenergyOut = 0
+    cut_off = 1
     molar_volume = 7.11e-6
     v = 'bnds'
+    outputs = exodus
   [../]
 []
 
 [Postprocessors]
-  # Scalar postprocessors
-# [./ngrains]
-  #Counts the number of grains in the polycrystal
-#type = FeatureFloodCount
-#   variable = bnds
-#   threshold = 0.7
-# [../]
+
   [./grainArea]
     type = ElementIntegralVariablePostprocessor
     variable = gr0
   [../]
+
   [./dt]
     # Outputs the current time step
     type = TimestepSize
   [../]
+
 []
 
 [Executioner]
@@ -133,7 +129,7 @@
   nl_rel_tol = 1e-8 # Absolute tolerance for nonlienar solves
   start_time = 0.0
   end_time = 10000
-  dt = 25
+  dt = 5
   [./TimeStepper]
     type = IterationAdaptiveDT
     dt = 5 # Initial time step.  In this simulation it changes.
@@ -149,7 +145,7 @@
 []
 
 [Outputs]
-  file_base = circle_2D_ani
+  file_base = circle_2D_DE
   output_initial = true
   exodus = true
   csv = true

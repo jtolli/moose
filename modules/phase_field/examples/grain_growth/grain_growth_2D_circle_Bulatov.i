@@ -90,7 +90,7 @@
     wGB = 14 # nm
     GBmob0 = 2.5e-6 #m^4/(Js) from Schoenfelder 1997
     Q = 0.23 #Migration energy in eV
-    GBenergy = 0.6327 #GB energy in J/m^2
+    GBenergy = 0.708 #GB energy in J/m^2
     outputs = exodus
     bnds = 'bnds'
 
@@ -131,10 +131,10 @@
   nl_rel_tol = 1e-8 # Absolute tolerance for nonlienar solves
   start_time = 0.0
   end_time = 10000
-  dt = 25
+  dt = 1
   [./TimeStepper]
     type = IterationAdaptiveDT
-    dt = 5 # Initial time step.  In this simulation it changes.
+    dt = 1 # Initial time step.  In this simulation it changes.
     optimal_iterations = 6 #Time step will adapt to maintain this number of nonlinear iterations
   [../]
   [./Adaptivity]
