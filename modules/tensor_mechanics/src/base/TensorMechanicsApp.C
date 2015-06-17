@@ -35,7 +35,9 @@
 #include "ComputeFiniteStrain.h"
 #include "ComputeLinearElasticStress.h"
 #include "ComputeFiniteStrainElasticStress.h"
-#include "Compute1PhaseEigenStrain.h"
+#include "ComputeEigenstrain.h"
+#include "ComputeVariableEigenstrain.h"
+#include "ComputeConcentrationDependentElasticityTensor.h"
 
 #include "TensorMechanicsPlasticSimpleTester.h"
 #include "TensorMechanicsPlasticTensile.h"
@@ -130,7 +132,9 @@ TensorMechanicsApp::registerObjects(Factory & factory)
   registerMaterial(ComputeFiniteStrain);
   registerMaterial(ComputeLinearElasticStress);
   registerMaterial(ComputeFiniteStrainElasticStress);
-  registerMaterial(Compute1PhaseEigenStrain);
+  registerMaterial(ComputeEigenstrain);
+  registerMaterial(ComputeVariableEigenstrain);
+  registerMaterial(ComputeConcentrationDependentElasticityTensor);
 
   registerUserObject(TensorMechanicsPlasticSimpleTester);
   registerUserObject(TensorMechanicsPlasticTensile);

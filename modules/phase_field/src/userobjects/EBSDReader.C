@@ -8,8 +8,6 @@
 #include "EBSDMesh.h"
 #include "MooseMesh.h"
 
-#include <Eigen/Geometry>
-
 template<>
 InputParameters validParams<EBSDReader>()
 {
@@ -37,6 +35,10 @@ EBSDReader::EBSDReader(const std::string & name, InputParameters params) :
 void
 EBSDReader::initialSetup()
 {
+  // No need to re-read data upon recovery
+  if (_app.isRecovering())
+    return;
+
   // Fetch and check mesh
   EBSDMesh * mesh = dynamic_cast<EBSDMesh *>(&_mesh);
   if (mesh == NULL)

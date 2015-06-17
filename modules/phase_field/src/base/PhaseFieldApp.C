@@ -54,8 +54,11 @@
 #include "RndBoundingBoxIC.h"
 #include "RndSmoothCircleIC.h"
 #include "SmoothCircleIC.h"
+#include "SmoothEllipseIC.h"
 #include "SpecifiedSmoothCircleIC.h"
 #include "ThumbIC.h"
+#include "ThumbYIC.h"
+#include "TwoThumbIC.h"
 #include "Tricrystal2CircleGrainsIC.h"
 
 /*
@@ -69,6 +72,11 @@
 #include "ElasticEnergyMaterial.h"
 #include "GBAnisotropy.h"
 #include "GBEvolution.h"
+#include "GBRSWTest.h"
+#include "GBQuadrantTest.h"
+#include "GB100Test.h"
+#include "GBBulatovFit.h"
+#include "GBDiscountinousEnergy.h"
 #include "KKSXeVacSolidMaterial.h"
 #include "LinearIsoElasticPFDamage.h"
 #include "MathEBFreeEnergy.h"
@@ -123,6 +131,7 @@
  */
 #include "BicrystalBoundingBoxICAction.h"
 #include "BicrystalCircleGrainICAction.h"
+#include "BicrystalEllipticalGrainICAction.h"
 #include "PolycrystalHexGrainICAction.h"
 #include "PolycrystalKernelAction.h"
 #include "PolycrystalRandomICAction.h"
@@ -210,9 +219,13 @@ PhaseFieldApp::registerObjects(Factory & factory)
   registerInitialCondition(RndBoundingBoxIC);
   registerInitialCondition(RndSmoothCircleIC);
   registerInitialCondition(SmoothCircleIC);
+  registerInitialCondition(SmoothEllipseIC);
   registerInitialCondition(SpecifiedSmoothCircleIC);
   registerInitialCondition(ThumbIC);
+  registerInitialCondition(ThumbYIC);
+  registerInitialCondition(TwoThumbIC);
   registerInitialCondition(Tricrystal2CircleGrainsIC);
+
 
   registerMaterial(BarrierFunctionMaterial);
   registerMaterial(DerivativeMultiPhaseMaterial);
@@ -222,6 +235,11 @@ PhaseFieldApp::registerObjects(Factory & factory)
   registerMaterial(ElasticEnergyMaterial);
   registerMaterial(GBAnisotropy);
   registerMaterial(GBEvolution);
+  registerMaterial(GBRSWTest);
+  registerMaterial(GBQuadrantTest);
+  registerMaterial(GB100Test);
+  registerMaterial(GBBulatovFit);
+  registerMaterial(GBDiscountinousEnergy);
   registerMaterial(KKSXeVacSolidMaterial);
   registerMaterial(LinearIsoElasticPFDamage);
   registerMaterial(MathEBFreeEnergy);
@@ -234,7 +252,6 @@ PhaseFieldApp::registerObjects(Factory & factory)
   registerMaterial(PolynomialFreeEnergy);
   registerMaterial(SwitchingFunctionMaterial);
 
-  registerDeprecatedObjectName(FeatureFloodCount, "NodalFloodCount", "06/01/2015 00:00");
   registerPostprocessor(FeatureFloodCount);
   registerPostprocessor(GrainTracker);
   registerPostprocessor(NodalVolumeFraction);
@@ -242,7 +259,6 @@ PhaseFieldApp::registerObjects(Factory & factory)
   registerAux(BndsCalcAux);
   registerAux(CrossTermGradientFreeEnergy);
   registerAux(KKSGlobalFreeEnergy);
-  registerDeprecatedObjectName(FeatureFloodCountAux, "NodalFloodCountAux", "06/01/2015 00:00");
   registerAux(FeatureFloodCountAux);
   registerAux(TotalFreeEnergy);
 
@@ -268,6 +284,7 @@ PhaseFieldApp::associateSyntax(Syntax & syntax, ActionFactory & action_factory)
   syntax.registerActionSyntax("PolycrystalVariablesAction", "Variables/PolycrystalVariables");
   syntax.registerActionSyntax("EmptyAction", "ICs/PolycrystalICs");  // placeholder
   syntax.registerActionSyntax("BicrystalCircleGrainICAction", "ICs/PolycrystalICs/BicrystalCircleGrainIC");
+  syntax.registerActionSyntax("BicrystalEllipticalGrainICAction", "ICs/PolycrystalICs/BicrystalEllipticalGrainIC");
   syntax.registerActionSyntax("BicrystalBoundingBoxICAction", "ICs/PolycrystalICs/BicrystalBoundingBoxIC");
   syntax.registerActionSyntax("Tricrystal2CircleGrainsICAction", "ICs/PolycrystalICs/Tricrystal2CircleGrainsIC");
   syntax.registerActionSyntax("PolycrystalHexGrainICAction", "ICs/PolycrystalICs/PolycrystalHexGrainIC");
@@ -278,6 +295,7 @@ PhaseFieldApp::associateSyntax(Syntax & syntax, ActionFactory & action_factory)
   registerAction(PolycrystalKernelAction, "add_kernel");
   registerAction(PolycrystalVariablesAction, "add_variable");
   registerAction(BicrystalCircleGrainICAction, "add_ic");
+  registerAction(BicrystalEllipticalGrainICAction, "add_ic");
   registerAction(BicrystalBoundingBoxICAction, "add_ic");
   registerAction(Tricrystal2CircleGrainsICAction, "add_ic");
   registerAction(PolycrystalHexGrainICAction, "add_ic");
