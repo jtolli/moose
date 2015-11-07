@@ -44,6 +44,7 @@ GBAnisotropy::GBAnisotropy(const InputParameters & parameters) :
     _gamma(declareProperty<Real>("gamma_asymm")),
     _L(declareProperty<Real>("L")),
     _mu(declareProperty<Real>("mu")),
+    _l_GB(declareProperty<Real>("l_GB")),
     _molar_volume(declareProperty<Real>("molar_volume")),
     _entropy_diff(declareProperty<Real>("entropy_diff")),
     _act_wGB(declareProperty<Real>("act_wGB")),
@@ -233,6 +234,7 @@ GBAnisotropy::computeProperties()
     _gamma[_qp] = sum_gamma / sum_val;
     _L[_qp] = sum_L / sum_val;
     _mu[_qp] = _mu_qp;
+    _l_GB[_qp] = _wGB;
 
     _molar_volume[_qp] = _M_V / (_length_scale*_length_scale*_length_scale); // m^3/mol converted to ls^3/mol
     _entropy_diff[_qp] = 9.5 * _JtoeV; // J/(K mol) converted to eV(K mol)

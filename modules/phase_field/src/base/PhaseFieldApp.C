@@ -13,6 +13,7 @@
  * Kernels
  */
 #include "ACGBPoly.h"
+#include "ACGrGrAnis.h"
 #include "ACGrGrElasticDrivingForce.h"
 #include "ACGrGrPoly.h"
 #include "ACInterface.h"
@@ -235,6 +236,7 @@ void
 PhaseFieldApp::registerObjects(Factory & factory)
 {
   registerKernel(ACGBPoly);
+  registerKernel(ACGrGrAnis);
   registerKernel(ACGrGrElasticDrivingForce);
   registerKernel(ACGrGrPoly);
   registerKernel(ACInterface);

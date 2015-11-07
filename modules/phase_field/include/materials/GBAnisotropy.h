@@ -54,6 +54,7 @@ private:
   MaterialProperty<Real> & _gamma;
   MaterialProperty<Real> & _L;
   MaterialProperty<Real> & _mu;
+  MaterialProperty<Real> & _l_GB;
 
   MaterialProperty<Real> & _molar_volume;
   MaterialProperty<Real> & _entropy_diff;
