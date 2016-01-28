@@ -92,7 +92,7 @@ ACGrGrAnis::computeDFDOP(PFFunctionType type)
     }
   }
 
-  Real Dsigma_Deta = 2 * _u[_qp] * (SumEtaj * SumEtaSigmaij - SumEtaSigmaj * SumEtaSigmaij) / (SumEtaij * SumEtaij);
+  Real Dsigma_Deta = 2 * _u[_qp] * (SumEtaSigmaj * SumEtaSigmaij - SumEtaj * SumEtaSigmaij) / (SumEtaij * SumEtaij);
 
   Real tgrad_correction = 0.0;
 
