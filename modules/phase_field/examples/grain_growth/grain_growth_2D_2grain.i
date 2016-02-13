@@ -1,3 +1,8 @@
+# This simulation predicts GB migration of a 2D copper polycrystal with 15 grains
+# Mesh adaptivity and time step adaptivity are used
+# An AuxVariable is used to calculate the grain boundary locations
+# Postprocessors are used to record time step and the number of grains
+
 [Mesh]
   # Mesh block.  Meshes can be read in or automatically generated
   type = GeneratedMesh
@@ -17,9 +22,9 @@
 
 [GlobalParams]
   # Parameters used by several kernels that are defined globally to simplify input file
-  op_num = 4 # Number of grains
+  op_num = 2 # Number of grains
   var_name_base = gr # Base name of grains
-  grain_num = 4
+  grain_num = 2
   length_scale = 1.0e-9
   time_scale = 1.0e-9
   wGB = 14
@@ -37,55 +42,33 @@
 
 [ICs]
   [./PolycrystalICs]
-    [./PolycrystalHexGrainIC]
-
+    [./PolycrystalVoronoiIC]
     [../]
   [../]
 []
 
 [AuxVariables]
+#active = ''
+  # Dependent variables
   [./bnds]
-    order = FIRST
-    family = LAGRANGE
-  [../]
-  [./unique_grains]
-    order = FIRST
-    family = LAGRANGE
-  [../]
-  [./var_indices]
+    # Variable used to visualize the grain boundaries in the simulation
     order = FIRST
     family = LAGRANGE
   [../]
 []
 
 [Kernels]
+  # Kernel block, where the kernels defining the residual equations are set up.
   [./PolycrystalKernel]
+    # Custom action creating all necessary kernels for grain growth.  All input parameters are up in GlobalParams
   [../]
-  [./anisotropy0]
-    type = ACGrGrAnis
-    variable = gr0
-    op = 0
-  [../]
-  [./anisotropy1]
-    type = ACGrGrAnis
-    variable = gr1
-    op = 1
-  [../]
-  [./anisotropy2]
-    type = ACGrGrAnis
-    variable = gr2
-    op = 2
-  [../]
-  [./anisotropy3]
-    type = ACGrGrAnis
-    variable = gr3
-    op = 3
-  [../]
-
 []
 
 [AuxKernels]
+#active = ''
+  # AuxKernel block, defining the equations used to calculate the auxvars
   [./bnds_aux]
+    # AuxKernel that calculates the GB term
     type = BndsCalcAux
     variable = bnds
     execute_on = timestep_end
@@ -93,9 +76,10 @@
 []
 
 [BCs]
+  # Boundary Condition block
   [./Periodic]
     [./top_bottom]
-      auto_direction = 'x y'
+      auto_direction = 'x y' # Makes problem periodic in the x and y directions
     [../]
   [../]
 []
@@ -114,18 +98,17 @@
 []
 
 [Postprocessors]
+active = 'dt '
+  # Scalar postprocessors
+  [./ngrains]
+  #Counts the number of grains in the polycrystal
+    type = FeatureFloodCount
+    variable = bnds
+    threshold = 0.7
+  [../]
   [./dt]
     # Outputs the current time step
     type = TimestepSize
-  [../]
-
-  [./gr1_area]
-    type = ElementIntegralVariablePostprocessor
-    variable = gr1
-  [../]
-  [./gr2_area]
-    type = ElementIntegralVariablePostprocessor
-    variable = gr2
   [../]
 []
 
@@ -143,12 +126,12 @@
   nl_max_its = 40 # Max number of nonlinear iterations
   nl_abs_tol = 1e-11 # Relative tolerance for nonlienar solves
   nl_rel_tol = 1e-8 # Absolute tolerance for nonlienar solves
-  start_time = 0
-  end_time = 17810
-  dt = 5
+  start_time = 0.0
+  end_time = 4000
+  dt = 25
   [./TimeStepper]
     type = IterationAdaptiveDT
-    dt = 5 # Initial time step.  In this simulation it changes.
+    dt = 25 # Initial time step.  In this simulation it changes.
     optimal_iterations = 6 #Time step will adapt to maintain this number of nonlinear iterations
   [../]
   [./Adaptivity]
@@ -156,13 +139,15 @@
     initial_adaptivity = 2 # Number of times mesh is adapted to initial condition
     refine_fraction = 0.7 # Fraction of high error that will be refined
     coarsen_fraction = 0.1 # Fraction of low error that will coarsened
-    max_h_level = 5 # Max number of refinements used, starting from initial mesh (before uniform refinement)
+    max_h_level = 4 # Max number of refinements used, starting from initial mesh (before uniform refinement)
   [../]
 []
 
-
 [Outputs]
-  execute_on = 'timestep_end'
   exodus = true
   csv = true
+  [./console]
+    type = Console
+    max_rows = 20
+  [../]
 []

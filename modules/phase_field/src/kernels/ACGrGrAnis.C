@@ -3,9 +3,9 @@
 template<>
 InputParameters validParams<ACGrGrAnis>()
 {
-  InputParameters params = validParams<ACBulk>();
+  InputParameters params = ACBulk<Real>::validParams();
   params.addClassDescription("Grain-Boundary model poly crystaline interface Allen-Cahn Kernel");
-  params.addRequiredCoupledVar("v", "Array of coupled variable names");
+  params.addRequiredCoupledVarWithAutoBuild("v", "var_name_base", "op_num", "Array of coupled variables");
   params.addCoupledVar("T", "temperature");
   params.addRequiredParam<unsigned int>("op","The order parameter number this is acting on");
   params.addRequiredParam<FileName>("Anisotropic_GB_file_name", "Name of the file containing: 1)GB mobility prefactor; 2) GB migration activation energy; 3)GB energy");
@@ -13,7 +13,7 @@ InputParameters validParams<ACGrGrAnis>()
 }
 
 ACGrGrAnis::ACGrGrAnis(const InputParameters & parameters) :
-    ACBulk(parameters),
+    ACBulk<Real>(parameters),
     _Anisotropic_GB_file_name(getParam<FileName>("Anisotropic_GB_file_name")),
     _mu(getMaterialProperty<Real>("mu")),
     _gamma(getMaterialProperty<Real>("gamma_asymm")),
@@ -36,9 +36,7 @@ ACGrGrAnis::ACGrGrAnis(const InputParameters & parameters) :
     // Initialize variables
     _vals[crys] = &coupledValue("v", crys);
     _grad_vals[crys] = &coupledGradient("v", crys);
-
     _sigma[crys].resize(_ncrys);
-
   }
 
   // Read in data from "Anisotropic_GB_file_name"
@@ -74,26 +72,46 @@ ACGrGrAnis::computeDFDOP(PFFunctionType type)
   Real SumEtaij = 0.0;
   Real SumEtaSigmaj = 0.0;
   Real SumEtaSigmaij = 0.0;
-  Real Sum2Eta4Eta = (_u[_qp] * _u[_qp] * _u[_qp] * _u[_qp]) / 4 * (_u[_qp] * _u[_qp]) / 2;
-  Real SumGradEta = _grad_u[_qp] * _grad_u[_qp];
+  Real Sum2Eta4Eta = 0.0;
+  Real SumGradEta = 0.0;
   for (unsigned int i = 0; i < _ncrys; ++i)
   {
-    SumEtaj += ((*_vals[i])[_qp] * (*_vals[i])[_qp]); //Sum all other order parameters
-    SumEtaij += ((*_vals[i])[_qp] * (*_vals[i])[_qp] * _u[_qp] * _u[_qp]);
-    SumEtaSigmaj += ((*_vals[i])[_qp] * (*_vals[i])[_qp]) * _sigma[i][_op];
-    SumEtaSigmaij += ((*_vals[i])[_qp] * (*_vals[i])[_qp] * _u[_qp] * _u[_qp] *_sigma[i][_op]);
-    Sum2Eta4Eta += ((*_vals[i])[_qp] * (*_vals[i])[_qp] * (*_vals[i])[_qp] * (*_vals[i])[_qp]) / 4 * ((*_vals[i])[_qp] * (*_vals[i])[_qp]) / 2;
+    if (i != _op)
+    {
+      SumEtaj += ((*_vals[i])[_qp] * (*_vals[i])[_qp]); //Sum all other order parameters
+      SumEtaSigmaj += ((*_vals[i])[_qp] * (*_vals[i])[_qp]) * _sigma[i][_op];
+    }
+    Sum2Eta4Eta += ((*_vals[i])[_qp] * (*_vals[i])[_qp] * (*_vals[i])[_qp] * (*_vals[i])[_qp]) / 4 - ((*_vals[i])[_qp] * (*_vals[i])[_qp]) / 2;
     SumGradEta += ((*_grad_vals[i])[_qp] * (*_grad_vals[i])[_qp]);
 
-    for (unsigned int j = i; j < _ncrys; ++j)
+    for (unsigned int j = i + 1; j < _ncrys; ++j)
     {
       SumEtaij += ((*_vals[i])[_qp]*(*_vals[i])[_qp]*(*_vals[j])[_qp]*(*_vals[j])[_qp]);
       SumEtaSigmaij += ((*_vals[i])[_qp] * (*_vals[i])[_qp] * (*_vals[j])[_qp]*(*_vals[j])[_qp]) * _sigma[i][j];
     }
   }
 
-  Real Dsigma_Deta = 2 * _u[_qp] * (SumEtaSigmaj * SumEtaSigmaij - SumEtaj * SumEtaSigmaij) / (SumEtaij * SumEtaij);
+  Real Dsigma_Deta;
+  if (SumEtaij < 0.01) //prevent division by zero and almost zero
+    Dsigma_Deta = 0;
+  else
+    Dsigma_Deta = 2 * _u[_qp] * (SumEtaSigmaj * SumEtaij - SumEtaj * SumEtaSigmaij) / (SumEtaij * SumEtaij);
 
+  // if (std::abs(Dsigma_Deta) > 0.01)
+  // {
+  //   Moose::out << "Dsigma_Deta = " << Dsigma_Deta <<std::endl;
+  //   Moose::out << "u = " << _u[_qp] << std::endl;
+  //   Moose::out << "op = " << _op << std::endl;
+  //   Moose::out << "ncrys = " << _ncrys <<std::endl;
+  //   Moose::out << "vals[0] = " << (*_vals[0])[_qp] << std::endl;
+  //   Moose::out << "vals[1] = " << (*_vals[1])[_qp] << std::endl;
+  //   Moose::out << "vals[2] = " << (*_vals[2])[_qp] << std::endl;
+  //   Moose::out << "vals[3] = " << (*_vals[3])[_qp] << std::endl;
+  //   Moose::out << "SumEtaij = " << SumEtaij << std::endl;
+  //   Moose::out << "SumEtaj = " << SumEtaj << std::endl;
+  //   Moose::out << "SumEtaSigmaj = " << SumEtaSigmaj << std::endl;
+  //   Moose::out << "SumEtaSigmaij = " << SumEtaSigmaij << std::endl << std::endl;
+  // }
   Real tgrad_correction = 0.0;
 
   //Calcualte either the residual or jacobian of the grain growth free energy
@@ -102,12 +120,12 @@ ACGrGrAnis::computeDFDOP(PFFunctionType type)
     case Residual:
       if (_has_T)
         tgrad_correction = _tgrad_corr_mult[_qp]*_grad_u[_qp]*(*_grad_T)[_qp];
-      return Dsigma_Deta * (6.0 / _l_GB[_qp] * (Sum2Eta4Eta + _gamma[_qp] * SumEtaij + 0.25) + 0.75 * _l_GB[_qp] *SumGradEta);
+      return Dsigma_Deta * (6.0 / _l_GB[_qp] * (Sum2Eta4Eta + _gamma[_qp] * SumEtaij + 0.25) + 0.75 * _l_GB[_qp] * SumGradEta);
 
     case Jacobian:
       if (_has_T)
         tgrad_correction = _tgrad_corr_mult[_qp]*_grad_phi[_j][_qp]*(*_grad_T)[_qp];
-      return _phi[_j][_qp]*Dsigma_Deta * (6.0 / _l_GB[_qp] * (Sum2Eta4Eta + _gamma[_qp] * SumEtaij + 0.25) + 0.75 * _l_GB[_qp] *SumGradEta);
+      return _phi[_j][_qp]*Dsigma_Deta * (6.0 / _l_GB[_qp] * (Sum2Eta4Eta + _gamma[_qp] * SumEtaij + 0.25) + 0.75 * _l_GB[_qp] * SumGradEta);
   }
 
   mooseError("Invalid type passed in");

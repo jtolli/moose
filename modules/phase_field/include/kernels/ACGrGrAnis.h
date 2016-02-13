@@ -14,7 +14,7 @@ InputParameters validParams<ACGrGrAnis>();
  * It calculates the residual of the ith order parameter, and the values of
  * all other order parameters are coupled variables and are stored in vals.
  */
-class ACGrGrAnis : public ACBulk
+class ACGrGrAnis : public ACBulk<Real>
 {
 public:
   ACGrGrAnis(const InputParameters & parameters);
